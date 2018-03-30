@@ -1,0 +1,9 @@
+8 2
+holz 1 3
+löffel 4 5
+haus 3 8
+buch 6 2
+gast 2 9
+märchenbuch 3 2
+holzlöffel 3 6
+gästehaus 9 4
