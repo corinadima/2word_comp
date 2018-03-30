@@ -307,6 +307,7 @@ function CompositionModel:train()
 		local field_delim = separator or ' '
 		local outputFileName = saveName .. '.pred'
 		local f = io.open(outputFileName, "w")
+		f:write(string.format("%d %d\n", predictions:size()[1], predictions:size()[2]))
 
 		for i = 1, predictions:size()[1] do
 			local cidx = indexSet[i][3]

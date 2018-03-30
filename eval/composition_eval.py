@@ -122,12 +122,11 @@ def eval_on_file(path_composed_emb, path_observed_emb, save_path):
         
 if __name__=="__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-composed", dest="composed_file", type=str, 
+    parser.add_argument("--composed", dest="composed_file", type=str, 
         help="file containing the composed representations")
-    parser.add_argument("-dictionary", dest="dict_file", type=str, 
+    parser.add_argument("--dictionary", dest="dict_file", type=str, 
         help="file containing the original representations (not only compounds, but also heads/modifiers)")
-    parser.add_argument("-output", dest="ranks_file", type=str, help="path for writing the ranks file")
-    parser.add_argument("--normalization", type=str, help="normalization type", default="")
+    parser.add_argument("--output", dest="ranks_file", type=str, help="path for writing the ranks file")
 
     args = parser.parse_args()
     eval_on_file(path_composed_emb=args.composed_file, path_observed_emb=args.dict_file, 

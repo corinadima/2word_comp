@@ -4,9 +4,9 @@ local stringx = require('pl.stringx')
 
 -- data loading utilities
 
-local dataLoader = {}
+local data_loader = {}
 
-function dataLoader.loadDenseMatrix(fileName, separator)
+function data_loader.loadDenseMatrix(fileName, separator)
   local dict = {}
   local dataset = {}
   local dt_index = 0
@@ -22,21 +22,25 @@ function dataLoader.loadDenseMatrix(fileName, separator)
   io.input(fileName)
   local lines = io.lines()
   local loaded_tensor = nil
+  local line_idx = 1
 
   local load_limit = limit or -1 
   for line in io.lines() do
-    local sp = stringx.split(stringx.strip(line), field_delim)
-    local tensor_size = #sp-1
-    local loaded_tensor = torch.DoubleTensor(tensor_size):zero()
-    table.insert(dict, stringx.strip(sp[1]))
-    local index = 2
-    while index <= #sp do
-      loaded_tensor[index-1] = sp[index]
-      index = index + 1
-    end
+    if line_idx > 1 then
+      local sp = stringx.split(stringx.strip(line), field_delim)
+      local tensor_size = #sp-1
+      local loaded_tensor = torch.DoubleTensor(tensor_size):zero()
+      table.insert(dict, stringx.strip(sp[1]))
+      local index = 2
+      while index <= #sp do
+        loaded_tensor[index-1] = sp[index]
+        index = index + 1
+      end
 
-    dt_index = dt_index + 1;
-    table.insert(dataset, loaded_tensor)
+      dt_index = dt_index + 1;
+      table.insert(dataset, loaded_tensor)
+    end
+    line_idx = line_idx + 1
   end
   io.close()
 
@@ -48,7 +52,7 @@ function dataLoader.loadDenseMatrix(fileName, separator)
   return dict, datasetTensor
 end
 
-function dataLoader.loadDictionary( fileName )
+function data_loader.loadDictionary( fileName )
   local dict = {}
   io.input(fileName)
   local idx = 1
@@ -73,7 +77,7 @@ function dataLoader.loadDictionary( fileName )
   return dict
 end
 
-function dataLoader.loadSimpleDataset(fileName, separator)
+function data_loader.loadSimpleDataset(fileName, separator)
   local dataset = {}
   local dt_index = 0
 
@@ -111,4 +115,4 @@ function dataLoader.loadSimpleDataset(fileName, separator)
   return datasetTensor
 end
 
-return dataLoader
+return data_loader

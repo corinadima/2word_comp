@@ -1,15 +1,15 @@
 require 'paths' -- torch module for file path handling
-dataLoader = require 'utils.dataLoader'
+data_loader = require 'utils.data_loader'
 
 local compose_utils = {}
 
 function compose_utils:loadDatasets(datasetDir, minNum)
 	print('==> loading datasets...')
 	
-	local trainSet = dataLoader.loadSimpleDataset(paths.concat("data", datasetDir, "train.txt"), " ")
-	local devSet = dataLoader.loadSimpleDataset(paths.concat("data", datasetDir, "dev.txt"), " ")
-	local testSet = dataLoader.loadSimpleDataset(paths.concat("data", datasetDir, "test.txt"), " ")
-	local fullSet = dataLoader.loadSimpleDataset(paths.concat("data", datasetDir, "full.txt"), " ")
+	local trainSet = data_loader.loadSimpleDataset(paths.concat("data", datasetDir, "train.txt"), " ")
+	local devSet = data_loader.loadSimpleDataset(paths.concat("data", datasetDir, "dev.txt"), " ")
+	local testSet = data_loader.loadSimpleDataset(paths.concat("data", datasetDir, "test.txt"), " ")
+	local fullSet = data_loader.loadSimpleDataset(paths.concat("data", datasetDir, "full.txt"), " ")
 	print('==> dataset loaded, train size:', trainSet:size(),
 	  ' dev size', devSet:size(), ' test size', testSet:size(), ' full size', fullSet:size())
 
@@ -20,14 +20,14 @@ end
 function compose_utils:loadCMHDense(datasetDir, embeddingsId, size)
 	print('==> loading dense embeddings of size ' .. size .. '...')
 	local cmhEmbeddingsPath = paths.concat('data', datasetDir, 'embeddings', embeddingsId, embeddingsId .. '.' .. size .. 'd_cmh.dm')
-	local cmhDictionary, cmhEmbeddings = dataLoader.loadDenseMatrix(cmhEmbeddingsPath)
+	local cmhDictionary, cmhEmbeddings = data_loader.loadDenseMatrix(cmhEmbeddingsPath)
 	print('==> embeddings loaded, size:', cmhEmbeddings:size())
 
-	print('==> norms')
-	print(cmhEmbeddings[1])
-	print(torch.norm(cmhEmbeddings[1]))
-	print(torch.norm(cmhEmbeddings[2]))
-	print(torch.norm(cmhEmbeddings[3]))
+	-- print('==> norms')
+	-- print(cmhEmbeddings[1])
+	-- print(torch.norm(cmhEmbeddings[1]))
+	-- print(torch.norm(cmhEmbeddings[2]))
+	-- print(torch.norm(cmhEmbeddings[3]))
 
 	return cmhDictionary, cmhEmbeddings
 end
