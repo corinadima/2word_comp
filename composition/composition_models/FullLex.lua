@@ -54,7 +54,7 @@ function FullLex:architecture(config)
 	local reshape_join = nn.Reshape(self.inputs,true)({join_mul})
 
 	local W = nn.Linear(self.inputs, self.outputs):init('weight', nninit.normal, 0, 1e-4)({reshape_join}):annotate{name="W"}
-	local nonlinearity = nn.Tanh()({W})
+	local nonlinearity = self.config.nonlinearity({W})
 
 	self.mlp = nn.gModule({Av_idx,u,Au_idx,v}, {nonlinearity})
 

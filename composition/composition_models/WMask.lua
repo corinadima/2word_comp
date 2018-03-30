@@ -45,7 +45,7 @@ function WMask:architecture(config)
 	local reshape_join = nn.Reshape(self.inputs, true)({join})
 
 	local W = nn.Linear(self.inputs, self.outputs):init('weight', nninit.normal, 0, 1e-4)({reshape_join}):annotate{name="W"}
-	local nonlinearity = nn.Tanh()({W})
+	local nonlinearity = self.config.nonlinearity({W})
 
 	self.mlp = nn.gModule({modifier_mask_idx,u,head_mask_idx,v}, {nonlinearity})
 

@@ -18,10 +18,7 @@ function CompositionModel:__init()
 	batchIterator = require 'iterators.TensorBatchIterator'
 end
 
-function CompositionModel:architecture()
-end
-
-function CompositionModel:architecture(nonlinearity)
+function CompositionModel:architecture(config)
 end
 
 function CompositionModel:data()

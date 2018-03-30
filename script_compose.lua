@@ -42,7 +42,7 @@ cmd:text('gsWordcomp: compositionality modelling')
 cmd:text()
 cmd:text('Options:')
 cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|AddMask|WMask')
-cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the architecture: none|tanh|sigmoid|reLU')
+cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the architecture: identity|tanh|sigmoid|reLU')
 
 cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|300')
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
@@ -158,12 +158,11 @@ nl['tanh'] = nonliniarities:tanhNonlinearity()
 nl['sigmoid'] = nonliniarities:sigmoidNonlinearity()
 nl['reLU'] = nonliniarities:reLUNonlinearity()
 nl['identity'] = nonliniarities:identityNonlinearity()
-nl['none'] = nonliniarities:noneNonlinearity()
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 
 local composition_model = composition_models[opt.model]
-local nonlinearity = nl[opt.nonlinearity]
+config.nonlinearity = nl[opt.nonlinearity]
 local mlp = composition_model:architecture(config)
 composition_model:data(trainSet, devSet, testSet, fullSet, cmhEmbeddings)
 

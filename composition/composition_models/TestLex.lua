@@ -43,7 +43,7 @@ end
 
 function composition_tests.FullLex()
 	local sz = 5
-	local config = {batchSize = 2}
+	local config = {batchSize = 2, nonlinearity = nn.Identity()}
 	local vocabSize = 2
 	local composition_model = torch.FullLex(sz * 2, sz, vocabSize)
 	local mlp = composition_model:architecture(config)
@@ -51,7 +51,8 @@ function composition_tests.FullLex()
 
     for _, node in ipairs(mlp.forwardnodes) do
       	if node.data.annotations.name == 'W' then
-        	node.data.module.weight:fill(1.0)
+        	two_eyes = torch.cat(torch.eye(sz), torch.eye(sz), 2):cuda()
+        	node.data.module.weight = two_eyes
     	end
     end
 
@@ -71,11 +72,10 @@ function composition_tests.FullLex()
 	local input = {u_idx, u, v_idx, v}
 	local output = mlp:forward(input)
 
-	-- the tanh makes everything one - because the vector elements are large
 	local expected_output = torch.Tensor(2,5):cuda()
-	expected_output[1] = torch.Tensor{1,1,1,1,1}
-	expected_output[2] = torch.Tensor{1,1,1,1,1}
-	tester:assertTensorEq(output, expected_output, 1e-2, "output and expected_output should be equal")
+	expected_output[1] = torch.Tensor{7,9,11,13,15}
+	expected_output[2] = torch.Tensor{10,12,14,16,18}
+	tester:assertTensorEq(output, expected_output, 5e-1, "output and expected_output should be equal")
 end
 
 
