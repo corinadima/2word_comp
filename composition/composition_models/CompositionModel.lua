@@ -93,7 +93,7 @@ end
 function CompositionModel:train()
 	print("iterator type " .. self.iteratorType)
 	if (self.iteratorType == 'table') then
-		batchIterator = require 'iterators.tableBatchIterator'
+		batchIterator = require 'iterators.TableBatchIterator'
 	elseif (self.iteratorType == 'quad') then
 		batchIterator = require 'iterators.QuadBatchIterator'
 	end
@@ -272,7 +272,7 @@ function CompositionModel:train()
 
 	print("iterator type " .. self.iteratorType)
 	if (self.iteratorType == 'table') then
-		batchIterator = require 'iterators.tableBatchIterator'
+		batchIterator = require 'iterators.TableBatchIterator'
 	elseif (self.iteratorType == 'quad') then
 		batchIterator = require 'iterators.QuadBatchIterator'
 	end
