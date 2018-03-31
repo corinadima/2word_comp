@@ -58,14 +58,14 @@ cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings
 -- cmd:option('-embeddings', 'glove_encow14ax_enwiki_9B.400k_l2_cols_rows', 'embeddings to use: ')
 	
 cmd:option('-gpuid', 1, 'GPU id or 0=use CPU')
-cmd:option('-criterion', 'mse', 'criterion to use: mse|cosine')
+cmd:option('-criterion', 'mse', 'criterion to use: mse|cosine|abs')
 cmd:option('-dropout', 0, 'dropout')
 cmd:option('-extraEpochs', 5, 'extraEpochs for early stopping')
 cmd:option('-batchSize', 100, 'mini-batch size (number between 1 and the size of the training data')
 cmd:option('-outputDir', 'models', 'output directory to store the trained models')
 cmd:option('-manual_seed', 1, 'manual seed for repeatable experiments')
 cmd:option('-testDev', true, 'test model on dev dataset')
-cmd:option('-testTest', true, 'test model on test dataset')
+cmd:option('-testTest', false, 'test model on test dataset')
 cmd:option('-testFull', false, 'test model on full dataset')
 cmd:option('-lr', 0.01, 'learning rate')
 

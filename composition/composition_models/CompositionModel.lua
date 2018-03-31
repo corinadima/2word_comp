@@ -20,11 +20,13 @@ end
 
 function CompositionModel:architecture(config)
 	if (config.criterion == 'mse') then
-		self.criterion = nn.MSECriterion()
-		self.criterion.sizeAverage = true
+		self.criterion = nn.MSECriterion(false)
+	elseif (config.criterion == 'abs') then
+		self.criterion = nn.AbsCriterion()
+		self.criterion.sizeAverage = false
 	elseif (config.criterion == 'cosine') then
 		self.criterion = nn.CosineEmbeddingCriterion()
-		self.criterion.sizeAverage = true
+		self.criterion.sizeAverage = false
 	else
 		error("Unknown criterion")
 	end
@@ -70,16 +72,20 @@ function CompositionModel:doTest(module, criterion, config, dataset)
 			else
 				tar = torch.Tensor(nextBatch.currentBatchSize):fill(1)
 			end
-		elseif (config.criterion == 'mse') then
+		elseif (config.criterion == 'mse' or config.criterion == 'abs') then
 			pred = predictions
 			tar= nextBatch.targets
 		else
 			error("Unknown criterion")
 		end
 
+		-- print("prediction size ".. pred:size()[1] .. " " .. pred:size()[2])
+		-- for i = 1,pred:size()[2] do
+		-- 		print(string.format("%.4f %.4f", pred[1][i], tar[1][i]))
+		-- end
 
 		local err = self.criterion:forward(pred, tar)
-		testError = testError + err * nextBatch.currentBatchSize
+		testError = testError + err
 
 		nextBatch = testIter:nextBatch()
 	end
@@ -189,11 +195,11 @@ function CompositionModel:train()
 			-- optimize the current mini-batch
 			if config.optimizer == 'adagrad' then
 				local _, fs = optim.adagrad(feval, x, config.adagrad_config)
-				trainError = trainError + fs[1] * nextBatch.currentBatchSize
+				trainError = trainError + fs[1]
 				collectgarbage()
 			elseif config.optimizer == 'sgd' then
 				local _, fs = optim.adagrad(feval, x, config.sgd_config)
-				trainError = trainError + fs.data * nextBatch.currentBatchSize
+				trainError = trainError + fs.data
 			else
 				error('unknown optimization method')
 			end
@@ -218,7 +224,7 @@ function CompositionModel:train()
 	self.extraIndex = 1
 	local logger = optim.Logger(self.config.saveName, false) -- no timestamp
 	logger.showPlot = false; -- if not run on a remote server, set this to true to show the learning curves in real time
-	logger.plotRawCmd = 'set xlabel "Epochs"\nset ylabel "MSE"'
+	logger.plotRawCmd = 'set xlabel "Epochs"\nset ylabel "' .. self.config.criterion ..'"'
 	logger.name = self.name
 
 	self:visualize(0)
@@ -254,7 +260,6 @@ function CompositionModel:train()
 				else
 					print("# Composer: stopping - you have reached the maximum number of epochs after the best model")
 					print("# Composer: best error: ", string.format("%.4f", self.bestError))
-					torch.save(self.config.saveName .. ".bin", self.mlp);
 					break					 
 				end
 			end
