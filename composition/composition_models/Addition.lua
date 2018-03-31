@@ -15,6 +15,8 @@ function Addition:__init(inputs, outputs)
 end
 
 function Addition:architecture(config)
+	parent:architecture(config)
+	
 	print("# Addition; vectors u and v as input; p = u + v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

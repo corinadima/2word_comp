@@ -19,12 +19,75 @@ function CompositionModel:__init()
 end
 
 function CompositionModel:architecture(config)
+	if (config.criterion == 'mse') then
+		self.criterion = nn.MSECriterion()
+		self.criterion.sizeAverage = true
+	elseif (config.criterion == 'cosine') then
+		self.criterion = nn.CosineEmbeddingCriterion()
+		self.criterion.sizeAverage = true
+	else
+		error("Unknown criterion")
+	end
 end
 
 function CompositionModel:data()
 end
 
 function CompositionModel:visualize(epoch)
+end
+
+function CompositionModel:doTest(module, criterion, config, dataset)
+	module:evaluate()
+
+	local testError = 0
+
+	-- one pass 
+
+	-- Create a batched iterator
+	local testIter = batchIterator:initialize({
+		data = dataset,
+		randomize = false,
+		cuda = self.withCUDA,
+		batchSize = config.batchSize,
+		inputShape = {2, self.inputs/2}
+	})
+
+	local nextBatch = testIter:nextBatch()
+
+	while (nextBatch ~= nil) do
+
+		-- test samples
+		local predictions = module:forward(nextBatch.inputs)
+
+		-- compute error
+
+		local pred, tar
+
+		if (config.criterion == 'cosine') then
+			pred = {predictions, nextBatch.targets}
+			if (self.withCUDA == true) then
+				tar = torch.Tensor(nextBatch.currentBatchSize):fill(1):cuda()
+			else
+				tar = torch.Tensor(nextBatch.currentBatchSize):fill(1)
+			end
+		elseif (config.criterion == 'mse') then
+			pred = predictions
+			tar= nextBatch.targets
+		else
+			error("Unknown criterion")
+		end
+
+
+		local err = self.criterion:forward(pred, tar)
+		testError = testError + err * nextBatch.currentBatchSize
+
+		nextBatch = testIter:nextBatch()
+	end
+
+	-- average error over the dataset
+	testError = testError/dataset:size()
+
+	return testError
 end
 
 function CompositionModel:train()
@@ -39,15 +102,6 @@ function CompositionModel:train()
 	print(self.config)
 
 	local config = self.config
-	if (config.criterion == 'mse') then
-		self.criterion = nn.MSECriterion()
-		self.criterion.sizeAverage = true
-	elseif (config.criterion == 'cosine') then
-		self.criterion = nn.CosineEmbeddingCriterion()
-		self.criterion.sizeAverage = true
-	else
-		error("Unknown criterion")
-	end
 
 	if (self.config.gpuid > 0) then
 		self.criterion:cuda()
@@ -159,60 +213,9 @@ function CompositionModel:train()
 		return trainError
 	end
 
-	function doTest(module, criterion, config, testDataset)
-		module:evaluate()
-
-		local testError = 0
-
-		-- one pass 
-
-		-- Create a batched iterator
-		local testIter = batchIterator:initialize({
-			data = testDataset,
-			randomize = false,
-			cuda = self.withCUDA,
-			batchSize = config.batchSize,
-			inputShape = {2, self.inputs/2}
-		})
-
-		local nextBatch = testIter:nextBatch()
-
-		while (nextBatch ~= nil) do
-
-			-- test samples
-			local predictions = module:forward(nextBatch.inputs)
-
-			-- compute error
-
-			local pred, tar
-
-			if (config.criterion == 'cosine') then
-				pred = {predictions, nextBatch.targets}
-				if (self.withCUDA == true) then
-					tar = torch.Tensor(nextBatch.currentBatchSize):fill(1):cuda()
-				else
-					tar = torch.Tensor(nextBatch.currentBatchSize):fill(1)
-				end
-			elseif (config.criterion == 'mse') then
-				pred = predictions
-				tar= nextBatch.targets
-			end
-
-
-			local err = criterion:forward(pred, tar)
-			testError = testError + err * nextBatch.currentBatchSize
-
-			nextBatch = testIter:nextBatch()
-		end
-
-		-- average error over the dataset
-		testError = testError/testDataset:size()
-
-		return testError
-	end
-
 
 	self.epoch = 1
+	self.extraIndex = 1
 	local logger = optim.Logger(self.config.saveName, false) -- no timestamp
 	logger.showPlot = false; -- if not run on a remote server, set this to true to show the learning curves in real time
 	logger.plotRawCmd = 'set xlabel "Epochs"\nset ylabel "MSE"'
@@ -223,15 +226,15 @@ function CompositionModel:train()
 	while true do
 		local itrainErr = doTrain(self.mlp, self.reg, self.criterion, self.config, self.trainDataset, self.epoch)
 		collectgarbage()
-		local trainErr = doTest(self.mlp, self.criterion, self.config, self.trainDataset)
-		local devErr = doTest(self.mlp, self.criterion, self.config, self.devDataset)
+		local trainErr = self:doTest(self.mlp, self.criterion, self.config, self.trainDataset)
+		local devErr = self:doTest(self.mlp, self.criterion, self.config, self.devDataset)
 
 		self:visualize(self.epoch)
 
 		self.epoch = self.epoch + 1
 		print('Train error:\t', string.format("%.10f", trainErr))
 		print('Dev error:\t', string.format("%.10f", devErr))
-		print('Best error:\t', string.format("%.10f", self.bestError))
+		print('Best error:\t', string.format("%.10f (%d)", self.bestError, self.extraIndex))
 
 		-- log the errors for plotting
 		logger:add{['training error'] = trainErr, ['dev error'] = devErr}
@@ -240,7 +243,7 @@ function CompositionModel:train()
 
 		-- early stopping when the error on the test set ceases to decrease
 		if (self.config.earlyStopping == true) then
-			if (devErr < self.bestError) then
+			if (self.bestError - devErr > 1e-4) then
 				self.bestError = devErr
 				torch.save(self.config.saveName .. ".bin", self.mlp);
 
@@ -250,7 +253,7 @@ function CompositionModel:train()
 					self.extraIndex = self.extraIndex + 1
 				else
 					print("# Composer: stopping - you have reached the maximum number of epochs after the best model")
-					print("# Composer: best error: " .. self.bestError)
+					print("# Composer: best error: ", string.format("%.4f", self.bestError))
 					torch.save(self.config.saveName .. ".bin", self.mlp);
 					break					 
 				end
@@ -326,8 +329,7 @@ function CompositionModel:train()
 	self.mlp = nil
 	self.config.adagrad_config=nil
 	print(self)
-	collectgarbage();collectgarbage();
-	-- freeMemory, totalMemory = cutorch.getMemoryUsage(1)
+	collectgarbage()
 	print("freeMemory ", freeMemory)
 	print("totalMemory", totalMemory)
 	local bestModel = torch.load(self.config.saveName .. ".bin")
@@ -337,12 +339,16 @@ function CompositionModel:train()
  	if (onDev == true) then
 		print(" # Creating dev set predictions... ")
 		local devPredictions = predict(bestModel, self.config, self.devDataset)
+		local devLoss = self:doTest(bestModel, self.criterion, self.config, self.devDataset)
+		print(string.format("# dev loss: %.4f", devLoss))
 		savePredictions(cmhDictionary, devPredictions, self.config.saveName .. '_dev', devSet, ' ')
 	end
 
 	if (onTest == true) then
 		print(" # Creating test set predictions... ")
 		local testPredictions = predict(bestModel, self.config, self.testDataset)
+		local testLoss = self:doTest(bestModel, self.criterion, self.config, self.testDataset)
+		print(string.format("# test loss: %.4f", testLoss))
 		savePredictions(cmhDictionary, testPredictions, self.config.saveName .. '_test', testSet, ' ')
 	end
 

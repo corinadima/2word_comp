@@ -15,6 +15,8 @@ function ModifierOnly:__init(inputs, outputs)
 end
 
 function ModifierOnly:architecture(config)
+	parent:architecture(config)
+	
 	print("# ModifierOnly; vectors u and v as input; head vector (v) is discarded; p = u ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

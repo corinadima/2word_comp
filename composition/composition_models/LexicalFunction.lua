@@ -19,6 +19,8 @@ function LexicalFunction:__init(inputs, outputs, vocab_size)
 end
 
 function LexicalFunction:architecture(config)
+	parent:architecture(config)
+	
 	print("# LexicalFunction; vector v as input; modification matrix U is learned for each word individually; p = U * v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

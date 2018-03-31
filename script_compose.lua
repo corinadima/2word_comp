@@ -9,8 +9,6 @@ require 'xlua'
 
 local sh = require 'sh' -- from https://github.com/zserge/luash
 
-require 'composition/composer.lua'
-
 local lua_utils = require 'utils.lua_utils'
 local compose_utils = require 'utils.compose_utils'
 local nonliniarities = require 'utils.nonliniarities'
@@ -47,7 +45,7 @@ cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the archi
 cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|300')
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
 cmd:option('-mhSize', 7131, 'number of modifiers and heads in the dataset')
-cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings to use: glove_encow14ax_enwiki_8B.400k_l2norm_axis01|glove_decow14ax_all_min_100_vectors_l2norm_axis01|glove_decow14ax_all_min_100_vectors_raw')
+cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings to use: glove_decow14ax_all_min_100_vectors_raw')
 
 -- cmd:option('-dim', 200, 'embeddings set, chosen via dimensionality: 300')
 -- cmd:option('-dataset', 'german_compounds_mixed_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
@@ -69,6 +67,7 @@ cmd:option('-manual_seed', 1, 'manual seed for repeatable experiments')
 cmd:option('-testDev', true, 'test model on dev dataset')
 cmd:option('-testTest', true, 'test model on test dataset')
 cmd:option('-testFull', false, 'test model on full dataset')
+cmd:option('-lr', 0.01, 'learning rate')
 
 cmd:text()
 
@@ -92,7 +91,7 @@ local config = {
 	optimizer = 'adagrad',
 	criterion = opt.criterion,
 	adagrad_config = {
-		learningRate = 0.001,
+		learningRate = opt.lr,
 		learningRateDecay = 0,
 		weightDecay = 0
 	},

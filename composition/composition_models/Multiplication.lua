@@ -15,6 +15,8 @@ function Multiplication:__init(inputs, outputs)
 end
 
 function Multiplication:architecture(config)
+	parent:architecture(config)
+	
 	print("# Multiplication; vectors u and v as input, multiplied component-wise; p = u * v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

@@ -19,6 +19,8 @@ function FullLex:__init(inputs, outputs, vocab_size)
 end
 
 function FullLex:architecture(config)
+	parent:architecture(config)
+	
 	print("# FullLex; vectors u,v as input; matrices A_w learned for each word individually; p = g(W[A_v_idx * u; A_u_idx * v] + b) ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

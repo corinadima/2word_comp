@@ -16,6 +16,8 @@ function FullAdd:__init(inputs, outputs)
 end
 
 function FullAdd:architecture(config)
+	parent:architecture(config)
+	
 	print("# FullAdd; vector u and v are each multiplied via W1 and W2, two nxn matrices; no biases ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

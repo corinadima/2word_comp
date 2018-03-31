@@ -17,6 +17,8 @@ function WeightedAddition:__init(inputs, outputs)
 end
 
 function WeightedAddition:architecture(config)
+	parent:architecture(config)
+	
 	print("# WeightedAddition; vectors u and v as input; p = lambda*u + beta*v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

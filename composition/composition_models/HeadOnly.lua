@@ -15,6 +15,8 @@ function HeadOnly:__init(inputs, outputs)
 end
 
 function HeadOnly:architecture(config)
+	parent:architecture(config)
+	
 	print("# HeadOnly; vectors u and v as input; modifier vector (u) is discarded; p = v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

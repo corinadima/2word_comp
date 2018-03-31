@@ -19,6 +19,8 @@ function AddMask:__init(inputs, outputs, vocab_size)
 end
 
 function AddMask:architecture(config)
+	parent:architecture(config)
+	
 	print("# AddMask; vectors u,v as input; vector masks learned for each word individually; p = u' * u + v'' * v ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

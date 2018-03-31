@@ -17,6 +17,8 @@ function Dilation:__init(inputs, outputs)
 end
 
 function Dilation:architecture(config)
+	parent:architecture(config)
+	
 	print("# Dilation; vectors u and v as input; p = (u dot u)v + (lambda - 1)(u dot v)u ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

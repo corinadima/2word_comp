@@ -19,6 +19,8 @@ function WMask:__init(inputs, outputs, vocab_size)
 end
 
 function WMask:architecture(config)
+	parent:architecture(config)
+	
 	print("# WMask; vectors u,v as input; vector masks learned for each word individually; p = g(W[u' * u; v'' * v]) ")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 

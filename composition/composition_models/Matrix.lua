@@ -17,6 +17,8 @@ function Matrix:__init(inputs, outputs)
 end
 
 function Matrix:architecture(config)
+	parent:architecture(config)
+	
 	print("# Matrix; vector u and v are concatenated and composed through the global matrix W (size 2nxn); p = g(W[u;v] + b)")
 	print("# inputs " .. self.inputs .. ", outputs " .. self.outputs)
 
