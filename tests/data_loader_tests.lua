@@ -55,5 +55,35 @@ function data_tests.none_norm()
 	tester:assertTensorEq(emb_renorm, expected, 1e-2, 'expected an un-normalized matrix')
 end
 
+function data_tests.l1_row_norm()
+	local emb = torch.Tensor(3, 2):cuda()
+	emb[1] = torch.Tensor({-2,4})
+	emb[2] = torch.Tensor({3,4})
+	emb[3] = torch.Tensor({4,8})
+
+	local expected = torch.Tensor(3, 2):cuda()
+	expected[1] = torch.Tensor({-0.3333, 0.6666})
+	expected[2] = torch.Tensor({0.4285, 0.5714})
+	expected[3] = torch.Tensor({0.3333, 0.6666})
+
+	emb_renorm = compose_utils:normalizeEmbeddings(emb, 'l1_row')
+	tester:assertTensorEq(emb_renorm, expected, 1e-2, 'incorrect l1 row norms')
+end
+
+function data_tests.l1_col_norm()
+	local emb = torch.Tensor(3, 2):cuda()
+	emb[1] = torch.Tensor({-2,4})
+	emb[2] = torch.Tensor({3,4})
+	emb[3] = torch.Tensor({4,8})
+
+	local expected = torch.Tensor(3, 2):cuda()
+	expected[1] = torch.Tensor({-0.2222, 0.25})
+	expected[2] = torch.Tensor({0.3333, 0.25})
+	expected[3] = torch.Tensor({0.4444, 0.5})
+
+	emb_renorm = compose_utils:normalizeEmbeddings(emb, 'l1_col')
+	tester:assertTensorEq(emb_renorm, expected, 1e-2, 'incorrect l1 col norms')
+end
+
 tester:add(data_tests)
 tester:run()

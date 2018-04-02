@@ -27,6 +27,12 @@ function compose_utils:normalizeEmbeddings(embedding_matix, normalization)
 	elseif normalization == 'l2_col' then
 		local emb_norm = torch.add(torch.norm(embedding_matix, 2, 1), 1e-7)
 		renorm_emb = embedding_matix:cdiv(emb_norm:expandAs(embedding_matix))
+	elseif normalization == 'l1_row' then
+		local emb_norm = torch.add(torch.norm(embedding_matix, 1, 2), 1e-7)
+		renorm_emb = embedding_matix:cdiv(emb_norm:expandAs(embedding_matix))
+	elseif normalization == 'l1_col' then
+		local emb_norm = torch.add(torch.norm(embedding_matix, 1, 1), 1e-7)
+		renorm_emb = embedding_matix:cdiv(emb_norm:expandAs(embedding_matix))
 	end
 
 	return renorm_emb

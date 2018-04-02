@@ -46,7 +46,7 @@ cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|30
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
 cmd:option('-mhSize', 7131, 'number of modifiers and heads in the dataset')
 cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings to use: glove_decow14ax_all_min_100_vectors_raw')
-cmd:option('-normalization', 'none', 'normalization procedure to apply on the input embeddings: none|l2_row|l2_col')
+cmd:option('-normalization', 'none', 'normalization procedure to apply on the input embeddings: none|l2_row|l2_col|l1_row|l1_col')
 
 -- cmd:option('-dim', 200, 'embeddings set, chosen via dimensionality: 300')
 -- cmd:option('-dataset', 'german_compounds_mixed_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
@@ -91,6 +91,7 @@ local config = {
 	batchSize = opt.batchSize,
 	optimizer = 'adagrad',
 	criterion = opt.criterion,
+	normalization = opt.normalization,
 	adagrad_config = {
 		learningRate = opt.lr,
 		learningRateDecay = 0,
