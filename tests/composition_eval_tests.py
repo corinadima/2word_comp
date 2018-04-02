@@ -4,14 +4,14 @@
 import unittest
 import numpy as np
 
-from composition_eval import computeQuartiles
-from composition_eval import eval_on_file
+from eva.composition_eval import computeQuartiles
+from eva.composition_eval import eval_on_file
 
 class composition_eval_tests(unittest.TestCase):
 
     def setUp(self):
-        self.original_file = "./eval/test_data/original.txt"
-        self.composed_file = "./eval/test_data/composed.txt"
+        self.original_file = "./tests/test_data/original.txt"
+        self.composed_file = "./tests/test_data/composed.txt"
 
     def test_quartiles_1(self):
         ranks = [6, 7, 15, 36, 39, 40, 41, 42, 43, 47, 49]

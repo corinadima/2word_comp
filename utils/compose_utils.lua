@@ -17,11 +17,28 @@ function compose_utils:loadDatasets(datasetDir, minNum)
 	return trainSet, devSet, testSet, fullSet
 end	
 
-function compose_utils:loadCMHDense(datasetDir, embeddingsId, size)
+function compose_utils:normalizeEmbeddings(embedding_matix, normalization)
+	local renorm_emb
+	if normalization == 'none' then
+		renorm_emb = embedding_matix
+	elseif normalization == 'l2_row' then
+		local emb_norm = torch.add(torch.norm(embedding_matix, 2, 2), 1e-7)
+		renorm_emb = embedding_matix:cdiv(emb_norm:expandAs(embedding_matix))
+	elseif normalization == 'l2_col' then
+		local emb_norm = torch.add(torch.norm(embedding_matix, 2, 1), 1e-7)
+		renorm_emb = embedding_matix:cdiv(emb_norm:expandAs(embedding_matix))
+	end
+
+	return renorm_emb
+end
+
+function compose_utils:loadCMHDense(datasetDir, embeddingsId, size, normalization)
 	print('==> loading dense embeddings of size ' .. size .. '...')
 	local cmhEmbeddingsPath = paths.concat('data', datasetDir, 'embeddings', embeddingsId, embeddingsId .. '.' .. size .. 'd_cmh.dm')
 	local cmhDictionary, cmhEmbeddings = data_loader.loadDenseMatrix(cmhEmbeddingsPath)
 	print('==> embeddings loaded, size:', cmhEmbeddings:size())
+
+	cmhEmbeddings = compose_utils:normalizeEmbeddings(cmhEmbeddings, normalization)
 
 	-- print('==> norms')
 	-- print(cmhEmbeddings[1])

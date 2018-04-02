@@ -46,6 +46,7 @@ cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|30
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
 cmd:option('-mhSize', 7131, 'number of modifiers and heads in the dataset')
 cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings to use: glove_decow14ax_all_min_100_vectors_raw')
+cmd:option('-normalization', 'none', 'normalization procedure to apply on the input embeddings: none|l2_row|l2_col')
 
 -- cmd:option('-dim', 200, 'embeddings set, chosen via dimensionality: 300')
 -- cmd:option('-dataset', 'german_compounds_mixed_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
@@ -115,7 +116,9 @@ local tf=os.date('%Y-%m-%d_%H-%M',os.time())
 -- fix seed, for repeatable experiments
 torch.manualSeed(config.manualSeed)
 
-local configname = opt.model .. '_' .. opt.nonlinearity .. '_' .. config.optimizer .. "_batch" .. config.batchSize .. "_" .. config.criterion
+local configname = opt.model .. '_' .. opt.nonlinearity .. '_' .. config.optimizer ..
+		 "_batch" .. config.batchSize .. "_" .. config.criterion .. "_" .. opt.normalization ..
+		 "_lr_" .. tostring(opt.lr):gsub('%.', '-')
 
 config.saveName = paths.concat(config.rundir, "model_" .. configname .. "_" .. tf)
 xlua.log(config.saveName .. ".log")
@@ -127,7 +130,7 @@ print("==> adagrad_config: ", config.adagrad_config)
 ---------------------------------------------------------------------------
 -- load data
 local trainSet, devSet, testSet, fullSet = compose_utils:loadDatasets(opt.dataset, opt.minNum)
-local cmhDictionary, cmhEmbeddings = compose_utils:loadCMHDense(opt.dataset, opt.embeddings, opt.dim)
+local cmhDictionary, cmhEmbeddings = compose_utils:loadCMHDense(opt.dataset, opt.embeddings, opt.dim, opt.normalization)
 
 local sz = cmhEmbeddings:size()[2]
 local vocab_size = opt.mhSize
@@ -198,7 +201,7 @@ function evaluate(subset, eval, config)
 	print(score)
 end
 
-local eval = sh.command('python eval/composition_eval.py')
+local eval = sh.command('python eva/composition_eval.py')
 
 if (opt.testDev == true) then
 	evaluate('dev', eval, config)
