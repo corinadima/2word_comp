@@ -58,7 +58,8 @@ cmd:option('-normalization', 'none', 'normalization procedure to apply on the in
 -- cmd:option('-mhSize', 7646, 'number of modifiers and heads in the dataset: 7646|8580|7131')
 -- cmd:option('-embeddings', 'glove_encow14ax_enwiki_9B.400k_l2_cols_rows', 'embeddings to use: ')
 	
-cmd:option('-gpuid', 1, 'GPU id or 0=use CPU')
+cmd:option('-gpuid', 1, 'GPU id or -1=use CPU')
+cmd:option('-threads', 16, 'threads to use')
 cmd:option('-criterion', 'mse', 'criterion to use: mse|cosine|abs')
 cmd:option('-dropout', 0, 'dropout')
 cmd:option('-extraEpochs', 5, 'extraEpochs for early stopping')
@@ -75,12 +76,15 @@ cmd:text()
 opt = cmd:parse(arg)
 print(opt)
 
-if (opt.gpuid > 0) then
+if (tonumber(opt.gpuid) > 0) then
 	print('using CUDA on GPU ' .. opt.gpuid .. '...')
 	cutorch.setDevice(opt.gpuid)
 	torch.manualSeed(opt.manual_seed) 
 	cutorch.manualSeed(opt.manual_seed, opt.gpuid)
 	print('Running on device: ' .. cutorch.getDeviceProperties(cutorch.getDevice()).name)
+else
+	torch.setnumthreads(opt.threads)
+	print('Running on CPU with ' .. opt.threads .. ' threads')
 end
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
@@ -107,7 +111,7 @@ local config = {
 	earlyStopping = true,
 	extraEpochs = opt.extraEpochs,
 	manualSeed = opt.manual_seed,
-	gpuid = opt.gpuid,
+	gpuid = tonumber(opt.gpuid),
 	dropout = opt.dropout,
 	cosineNeighbours = 0
 }
