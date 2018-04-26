@@ -30,20 +30,20 @@ def compute_neighbours(chosen, path_composed_emb, path_observed_emb, neighbours)
     nearest_words = {}
     nearest_cosines = {}
 
-    raw_observed_space = Word2VecKeyedVectors.load_word2vec_format(path_observed_emb, binary=False)
-    norm_observed_space = normalize(raw_observed_space.vectors, norm="l2", axis=1)
+    observed_space = Word2VecKeyedVectors.load_word2vec_format(path_observed_emb, binary=False)
+    observed_space.vectors = normalize(observed_space.vectors, norm="l2", axis=1)
 
-    raw_composed_space = Word2VecKeyedVectors.load_word2vec_format(path_composed_emb, binary=False)
-    norm_composed_space = normalize(raw_composed_space.vectors, norm="l2", axis=1)
+    composed_space = Word2VecKeyedVectors.load_word2vec_format(path_composed_emb, binary=False)
+    composed_space.vectors = normalize(composed_space.vectors, norm="l2", axis=1)
 
     chosen_words = set([tup[0] for tup in chosen])
 
-    composed_words = raw_composed_space.wv.vocab
-    observed_words = raw_observed_space.wv.vocab
+    composed_words = composed_space.wv.vocab
+    observed_words = observed_space.wv.vocab
 
     for w_idx, word in enumerate(composed_words):
         if (word not in chosen_words): continue
-        vector = composedSpace.get_row(word)
+        vector = composed_space.get_vector(word)
         Y = 1 - cdist(vector.mat, observedSpace.get_cooccurrence_matrix().mat, 'cosine')
         shape = Y.shape
         Yr = Y.reshape(shape[1])
