@@ -162,46 +162,46 @@ if __name__=="__main__":
     head_ranks_file = str(Path('data/results/German/model_HeadOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test_rankedCompounds.txt'))
     head_predictions_file = str(Path('data/results/German/model_HeadOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test.pred'))
 
-    modifier_ranks_file = './data/german_compounds_nn_only_composition_dataset/test_learned_representations/model_ModifierOnly_tanh_adagrad_batch100_mse_2017-07-13_14-51_dev_rankedCompounds.txt'
-    modifier_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_ModifierOnly_tanh_adagrad_batch100_mse_2017-07-13_14-51_dev.pred'
+    modifier_ranks_file = str(Path('data/results/German/model_ModifierOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test_rankedCompounds.txt'))
+    modifier_predictions_file = str(Path('data/results/German/model_ModifierOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test.pred'))
 
-    addition_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Addition_tanh_adagrad_batch100_mse_2017-07-13_15-01_dev_rankedCompounds.txt'
-    addition_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Addition_tanh_adagrad_batch100_mse_2017-07-13_15-01_dev.pred'
+    addition_ranks_file = str(Path('data/results/German/model_Addition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test_rankedCompounds.txt'))
+    addition_predictions_file = str(Path('data/results/German/model_Addition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test.pred'))
 
-    mul_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Multiplication_tanh_adagrad_batch100_mse_2017-07-13_15-02_dev_rankedCompounds.txt'
-    mul_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Multiplication_tanh_adagrad_batch100_mse_2017-07-13_15-02_dev.pred'
+    mul_ranks_file = str(Path('data/results/German/model_Multiplication_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test_rankedCompounds.txt'))
+    mul_predictions_file = str(Path('data/results/German/model_Multiplication_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test.pred'))
 
-    w_addition_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_WeightedAddition_tanh_adagrad_batch100_mse_2017-07-13_15-11_dev_rankedCompounds.txt'
-    w_addition_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_WeightedAddition_tanh_adagrad_batch100_mse_2017-07-13_15-11_dev.pred'
+    w_addition_ranks_file = str(Path('data/results/German/model_WeightedAddition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-43_test_rankedCompounds.txt'))
+    w_addition_predictions_file = str(Path('data/results/German/model_WeightedAddition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-43_test.pred'))
 
-    lexfunc_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_LexicalFunction_tanh_adagrad_batch100_mse_2017-07-13_14-23_dev_rankedCompounds.txt'
-    lexfunc_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_LexicalFunction_tanh_adagrad_batch100_mse_2017-07-13_14-23_dev.pred'
+    lexfunc_ranks_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44_test_rankedCompounds.txt'))
+    lexfunc_predictions_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44_test.pred'))
 
-    fulladd_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_FullAdd_tanh_adagrad_batch100_mse_2017-07-13_15-11_dev_rankedCompounds.txt'
-    fulladd_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_FullAdd_tanh_adagrad_batch100_mse_2017-07-13_15-11_dev.pred'
+    fulladd_ranks_file = str(Path('data/results/German/model_FullAdd_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-16_test_rankedCompounds.txt'))
+    fulladd_predictions_file = str(Path('data/results/German/model_FullAdd_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-16_test.pred'))
 
-    dil_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Dilation_tanh_adagrad_batch100_mse_2017-07-13_15-20_dev_rankedCompounds.txt'
-    dil_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Dilation_tanh_adagrad_batch100_mse_2017-07-13_15-20_dev.pred'
+    dil_ranks_file = str(Path('data/results/German/model_Dilation_tanh_adagrad_batch100_cosine_l2_col_lr_0-1_2018-04-22_08-43_test_rankedCompounds.txt'))
+    dil_predictions_file = str(Path('data/results/German/model_Dilation_tanh_adagrad_batch100_cosine_l2_col_lr_0-1_2018-04-22_08-43_test.pred'))
 
-    matrix_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Matrix_tanh_adagrad_batch100_mse_2017-07-13_15-31_dev_rankedCompounds.txt'
-    matrix_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_Matrix_tanh_adagrad_batch100_mse_2017-07-13_15-31_dev.pred'
+    matrix_ranks_file = str(Path('data/results/German/model_Matrix_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-50_test_rankedCompounds.txt'))
+    matrix_predictions_file = str(Path('data/results/German/model_Matrix_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-50_test.pred'))
 
-    fulllex_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_FullLex_tanh_adagrad_batch100_mse_2017-07-26_15-59_dev_rankedCompounds.txt'
-    fulllex_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_FullLex_tanh_adagrad_batch100_mse_2017-07-26_15-59_dev.pred'
+    fulllex_ranks_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test_rankedCompounds.txt'))
+    fulllex_predictions_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test.pred'))
 
-    addmask_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev_rankedCompounds.txt'
-    addmask_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev.pred'
+    addmask_ranks_file = './data/results/German/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev_rankedCompounds.txt'
+    addmask_predictions_file = './data/results/German/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev.pred'
 
-    wmask_ranks_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev_rankedCompounds.txt'
-    wmask_predictions_file = './data/german_compounds_nn_only_composition_dataset/dev_learned_representations/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev.pred'
+    wmask_ranks_file = './data/results/German/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev_rankedCompounds.txt'
+    wmask_predictions_file = './data/results/German/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev.pred'
 
 
-    asses_composition(path_observed_embeddings, head_predictions_file, head_ranks_file, 'head_only')
+    # asses_composition(path_observed_embeddings, head_predictions_file, head_ranks_file, 'head_only')
     # asses_composition(path_observed_embeddings, modifier_predictions_file, modifier_ranks_file, 'modifier_only')
     # asses_composition(path_observed_embeddings, addition_predictions_file, addition_ranks_file, 'addition')
     # asses_composition(path_observed_embeddings, mul_predictions_file, mul_ranks_file, 'mul')
 
-    # asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
+    asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
     # asses_composition(path_observed_embeddings, lexfunc_predictions_file, lexfunc_ranks_file, 'lexfunc')
     # asses_composition(path_observed_embeddings, fulladd_predictions_file, fulladd_ranks_file, 'fulladd')
     # asses_composition(path_observed_embeddings, dil_predictions_file, dil_ranks_file, 'dil')
