@@ -23,12 +23,11 @@ def read_ranks(fileName):
             dictionary[word] = rank
     return dictionary
 
-def compute_neighbours(chosen, path_composed_emb, path_observed_emb, neighbours):
+def compute_neighbours(chosen, path_composed_emb, path_observed_emb, no_neighbours):
     """
         Returns the neighbours of words from a composed space in an observed space.
     """
-    nearest_words = {}
-    nearest_cosines = {}
+    nearest_neighbours = {}
 
     observed_space = Word2VecKeyedVectors.load_word2vec_format(path_observed_emb, binary=False)
     observed_space.vectors = normalize(observed_space.vectors, norm="l2", axis=1)
@@ -41,37 +40,36 @@ def compute_neighbours(chosen, path_composed_emb, path_observed_emb, neighbours)
     composed_words = composed_space.wv.vocab
     observed_words = observed_space.wv.vocab
 
-    for w_idx, word in enumerate(composed_words):
-        if (word not in chosen_words): continue
-        vector = composed_space.get_vector(word)
-        Y = 1 - cdist(vector.mat, observedSpace.get_cooccurrence_matrix().mat, 'cosine')
-        shape = Y.shape
-        Yr = Y.reshape(shape[1])
+    for word, rank in chosen:
+        original_vec = observed_space.get_vector(word)
+        composed_vec = composed_space.get_vector(word)
 
-        # print(Yr.shape)
-        nearest_k_indices = np.argpartition(Yr, -neighbours)[-neighbours:]
-        sorted_nearest_k_indices = nearest_k_indices[np.argsort(Yr[nearest_k_indices])]
+        original_composed_cosine = np.dot(original_vec, composed_vec)
+        neighbours = observed_space.similar_by_vector(vector=original_vec, topn=no_neighbours)
+        neighbours.append(("%s\_c" % word, original_composed_cosine))
+        sorted_neighbours = sorted(neighbours, key=lambda tup: tup[1], reverse=True)
+        c_idx = [idx for idx, tup in enumerate(sorted_neighbours) if tup[0]=="%s\_c" % word]
+        print(word, original_composed_cosine, c_idx)
 
-        neighbour_words = [observed_words[idx] for idx in reversed(sorted_nearest_k_indices)]
-        neighbour_cosines = [Yr[idx] for idx in reversed(sorted_nearest_k_indices)]
+        nearest_neighbours[word] = sorted_neighbours
 
-        nearest_words[word] = neighbour_words
-        nearest_cosines[word] = neighbour_cosines
+    return nearest_neighbours
 
-    return nearest_words, nearest_cosines
+def compute_best_rank_average(best_rank, test_ranks, path_composed_emb, path_observed_emb):
+    chosen_words = set([tup for tup in test_ranks if tup[1] == best_rank])
+    print("chosen words", len(chosen_words))
 
-def compute_best_rank_average(best_rank, dev_ranks, path_composed_emb, path_observed_emb):
-    chosen_words = set([tup for tup in dev_ranks if tup[1] == best_rank])
+    nearest_neighbours = compute_neighbours(chosen_words, path_composed_emb, path_observed_emb, 1)
+    rank_cosines = [1]
+    for word, lst in nearest_neighbours.items():
+        rank_cosines.append(lst[1][1])
 
-    nearest_words, nearest_cosines = compute_neighbours(chosen_words, path_composed_emb, path_observed_emb, 5)
-    rank_cosines = [cosine[best_rank - 1] for word, cosine in nearest_cosines.items()]
-    print(rank_cosines)
     avg_cosine = np.mean(rank_cosines)
     print(str(len(chosen_words)) + " words of rank " + str(best_rank))
     print(" average cosine " + str(avg_cosine))
 
 
-def latex_print_info(output_file, sample_size, tuple_list, head_dev_ranks, nearest_words, nearest_cosines, neighbours):
+def latex_print_info(output_file, sample_size, chosen_examples, nearest_neighbours, neighbours):
     with open(output_file, mode='w', encoding='utf8') as out:
         out.write("\n")
 
@@ -84,23 +82,32 @@ def latex_print_info(output_file, sample_size, tuple_list, head_dev_ranks, neare
         out.write("\\scriptsize\n")
         out.write("\\begin{tabular}{rrrr}\n")
 
-        for i in range(math.floor(len(tuple_list)/sample_size)):
-            format_string = "\\textbf{%s:%d} & " * (sample_size-1) + "\\textbf{%s:%d} \\\\\n "
-            tp = tuple_list[i*sample_size:(i+1)*sample_size]
+        for i in range(math.floor(len(chosen_examples)/sample_size)):
+            format_string = "\\textbf{%s:%d} & " * (sample_size - 1) + "\\textbf{%s:%d} \\\\\n "
+            tp = chosen_examples[i*sample_size:(i+1)*sample_size]
             ctp = list(itertools.chain(*tp))
             out.write(format_string % tuple(ctp[:]))
             out.write("\n\midrule\n")
 
-            for j in range(neighbours):     
-                format_string = "%s %.2f & " * (sample_size-1) + "%s %.2f \\\\\n "
-                nw = [(nearest_words[tup[0]][j]) for tup in tp]
-                nc = [nearest_cosines[tup[0]][j] for tup in tp]
+            current_words = [tup[0] for tup in tp]
+            print("current_words", current_words)
+
+            for j in range(len(nearest_neighbours[current_words[i]])):     
+                format_string = "%s %.5f & " * (len(tp)-1) + "%s %.5f \\\\\n "
+                nw = [nearest_neighbours[word][j][0] for word in current_words]
+                nc = [nearest_neighbours[word][j][1] for word in current_words]
                 ncw = zip(nw, nc)
+                max_rank = max([tup[1] for tup in tp])
+                if max_rank > neighbours-1 and j == neighbours:
+                    format_dots = "%s & " * (len(tp)-1) + "%s \\\\\n"
+                    dots = ["..." for _ in tp]
+                    out.write(format_dots % tuple(dots))
+
                 out.write(format_string % tuple(list(itertools.chain(*ncw))))
             out.write("\n\midrule")
 
         out.write("\end{tabular}\n")
-        out.write("\caption{\label{ch5:table:de_nn-only_dev_head_examples}}\n")
+        out.write("\caption{\label{ch5:table:de_nn-only_test_head_examples}}\n")
         out.write("\end{center}\n")
         out.write("\end{table}\n")
         out.write("\end{document}\n")
@@ -110,7 +117,6 @@ def select_sample(sample_size, start_rank, ranks_dict):
     sorted_keys = sorted(ranks_dict)
     current_list = random.sample(ranks_dict[start_rank], len(ranks_dict[start_rank]))
     current_key_idx = sorted_keys.index(start_rank)
-    # ipdb.set_trace()
     while (len(samples) < sample_size):
         missing = sample_size - len(samples)
         samples = samples + current_list[:missing]
@@ -120,7 +126,6 @@ def select_sample(sample_size, start_rank, ranks_dict):
             current_list = random.sample(ranks_dict[sorted_keys[current_key_idx]], len(ranks_dict[sorted_keys[current_key_idx]]))
 
     return samples
-
 
 def asses_composition(path_observed_emb, path_composed_emb, path_ranks, model_name):
     print(model_name)
@@ -132,25 +137,23 @@ def asses_composition(path_observed_emb, path_composed_emb, path_ranks, model_na
     sample_size = 4
     best_rank = sorted_test[0][1]
     high_rank_list = select_sample(sample_size, best_rank, test_ranks_dict)
-    print(high_rank_list)
+    print(high_rank_list, best_rank)
 
     middle_rank = sorted_test[math.floor(len(sorted_test)/2)-int(math.floor(sample_size/2))][1]
     middle_rank_list = select_sample(sample_size, middle_rank, test_ranks_dict)
-    print(middle_rank_list)
+    print(middle_rank_list, middle_rank)
 
     lowest_rank = sorted_test[-1][1]
     low_rank_list = select_sample(sample_size, lowest_rank, test_ranks_dict) 
-    print(low_rank_list)
+    print(low_rank_list, lowest_rank)
 
-    all_ranks = list(itertools.chain(high_rank_list, middle_rank_list, low_rank_list))
+    chosen_examples = list(itertools.chain(high_rank_list, middle_rank_list, low_rank_list))
 
-    neighbours = 5
-    nearest_words, nearest_cosines = compute_neighbours(all_ranks, path_composed_emb, path_observed_emb, neighbours)
-
+    neighbours = 6
+    nearest_neighbours = compute_neighbours(chosen_examples, path_composed_emb, path_observed_emb, neighbours)
     compute_best_rank_average(best_rank, sorted_test, path_composed_emb, path_observed_emb)
-
     output_file = str(Path('data/results/German/' + model_name + '_analysis.tex'))
-    latex_print_info(output_file, sample_size, all_ranks, comp_test_ranks, nearest_words, nearest_cosines, neighbours)
+    latex_print_info(output_file, sample_size, chosen_examples, nearest_neighbours, neighbours)
 
 if __name__=="__main__":
 
