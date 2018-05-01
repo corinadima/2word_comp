@@ -66,7 +66,7 @@ def compute_best_rank_average(best_rank, test_ranks, path_composed_emb, path_obs
 
     avg_cosine = np.mean(rank_cosines)
     print(str(len(chosen_words)) + " words of rank " + str(best_rank))
-    print(" average cosine " + str(avg_cosine))
+    print("average cosine %.5f" % avg_cosine)
 
 
 def latex_print_info(output_file, sample_size, chosen_examples, nearest_neighbours, neighbours):
@@ -189,11 +189,11 @@ if __name__=="__main__":
     fulllex_ranks_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test_rankedCompounds.txt'))
     fulllex_predictions_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test.pred'))
 
-    addmask_ranks_file = './data/results/German/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev_rankedCompounds.txt'
-    addmask_predictions_file = './data/results/German/model_AddMask_tanh_adagrad_batch100_mse_2017-07-20_12-10_dev.pred'
+    addmask_ranks_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test_rankedCompounds.txt'))
+    addmask_predictions_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test.pred'))
 
-    wmask_ranks_file = './data/results/German/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev_rankedCompounds.txt'
-    wmask_predictions_file = './data/results/German/model_WMask_tanh_adagrad_batch100_mse_2017-07-20_11-29_dev.pred'
+    wmask_ranks_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test_rankedCompounds.txt'))
+    wmask_predictions_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test.pred'))
 
 
     # asses_composition(path_observed_embeddings, head_predictions_file, head_ranks_file, 'head_only')
@@ -201,7 +201,7 @@ if __name__=="__main__":
     # asses_composition(path_observed_embeddings, addition_predictions_file, addition_ranks_file, 'addition')
     # asses_composition(path_observed_embeddings, mul_predictions_file, mul_ranks_file, 'mul')
 
-    asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
+    # asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
     # asses_composition(path_observed_embeddings, lexfunc_predictions_file, lexfunc_ranks_file, 'lexfunc')
     # asses_composition(path_observed_embeddings, fulladd_predictions_file, fulladd_ranks_file, 'fulladd')
     # asses_composition(path_observed_embeddings, dil_predictions_file, dil_ranks_file, 'dil')
@@ -209,5 +209,5 @@ if __name__=="__main__":
     # asses_composition(path_observed_embeddings, fulllex_predictions_file, fulllex_ranks_file, 'fulllex')
 
     # asses_composition(path_observed_embeddings, addmask_predictions_file, addmask_ranks_file, 'addmask')
-    # asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
+    asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
 
