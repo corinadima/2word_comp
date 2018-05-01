@@ -109,7 +109,7 @@ function CompositionModel:train()
 
 	local config = self.config
 
-	if (self.config.gpuid > 0) then
+	if (self.config.gpuid >= 0) then
 		self.criterion:cuda()
 		self.withCUDA = true
 	else
@@ -269,7 +269,7 @@ function CompositionModel:train()
 
  function CompositionModel:predict(onDev, onTest, onFull, cmhDictionary, devSet, testSet, fullSet)
 
-	if (self.config.gpuid > 0) then
+	if (self.config.gpuid >= 0) then
 		self.withCUDA = true
 	else
 		self.withCUDA = false

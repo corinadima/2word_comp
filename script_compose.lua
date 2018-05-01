@@ -23,6 +23,7 @@ require 'composition/composition_models.WeightedAddition'
 require 'composition/composition_models.Multiplication'
 require 'composition/composition_models.LexicalFunction'
 require 'composition/composition_models.FullLex'
+require 'composition/composition_models.UncrossedFullLex'
 require 'composition/composition_models.Dilation'
 require 'composition/composition_models.AddMask'
 require 'composition/composition_models.WMask'
@@ -39,7 +40,7 @@ cmd:text()
 cmd:text('gsWordcomp: compositionality modelling')
 cmd:text()
 cmd:text('Options:')
-cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|AddMask|WMask')
+cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|UncrossedFullLex|AddMask|WMask')
 cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the architecture: identity|tanh|sigmoid|reLU')
 
 cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|300')
@@ -67,7 +68,7 @@ cmd:option('-batchSize', 100, 'mini-batch size (number between 1 and the size of
 cmd:option('-outputDir', 'models', 'output directory to store the trained models')
 cmd:option('-manual_seed', 1, 'manual seed for repeatable experiments')
 cmd:option('-testDev', true, 'test model on dev dataset')
-cmd:option('-testTest', false, 'test model on test dataset')
+cmd:option('-testTest', true, 'test model on test dataset')
 cmd:option('-testFull', false, 'test model on full dataset')
 cmd:option('-lr', 0.01, 'learning rate')
 
@@ -76,11 +77,12 @@ cmd:text()
 opt = cmd:parse(arg)
 print(opt)
 
-if (tonumber(opt.gpuid) > 0) then
+-- the lua devices are numbered starting from 1; however, when using CUDA_VISIBLE_DEVICES torch reports a single device with id 1
+if (tonumber(opt.gpuid) >= 0) then
 	print('using CUDA on GPU ' .. opt.gpuid .. '...')
-	cutorch.setDevice(opt.gpuid)
+	cutorch.setDevice(1)
 	torch.manualSeed(opt.manual_seed) 
-	cutorch.manualSeed(opt.manual_seed, opt.gpuid)
+	cutorch.manualSeed(opt.manual_seed, 1)
 	print('Running on device: ' .. cutorch.getDeviceProperties(cutorch.getDevice()).name)
 else
 	torch.setnumthreads(opt.threads)
@@ -111,7 +113,7 @@ local config = {
 	earlyStopping = true,
 	extraEpochs = opt.extraEpochs,
 	manualSeed = opt.manual_seed,
-	gpuid = tonumber(opt.gpuid),
+	gpuid = tonumber(opt.gpuid) >= 0 and 1 or -1,
 	dropout = opt.dropout,
 	cosineNeighbours = 0
 }
@@ -154,6 +156,7 @@ composition_models['Matrix'] = torch.Matrix(sz * 2, sz)
 composition_models['FullAdd'] = torch.FullAdd(sz * 2, sz)
 composition_models['LexicalFunction'] = torch.LexicalFunction(sz * 2, sz, vocab_size)
 composition_models['FullLex'] = torch.FullLex(sz * 2, sz, vocab_size)
+composition_models['UncrossedFullLex'] = torch.UncrossedFullLex(sz * 2, sz, vocab_size)
 composition_models['Dilation'] = torch.Dilation(sz * 2, sz)
 composition_models['AddMask'] = torch.AddMask(sz * 2, sz, vocab_size)
 composition_models['WMask'] = torch.WMask(sz * 2, sz, vocab_size)
@@ -173,7 +176,7 @@ config.nonlinearity = nl[opt.nonlinearity]
 local mlp = composition_model:architecture(config)
 composition_model:data(trainSet, devSet, testSet, fullSet, cmhEmbeddings)
 
-if (config.gpuid > 0) then
+if (config.gpuid >= 0) then
 	mlp:cuda()
 end
 
