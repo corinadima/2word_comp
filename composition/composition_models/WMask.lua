@@ -37,8 +37,8 @@ function WMask:architecture(config)
 	local modifier_mask = nn.LookupTable(self.vocab_size,self.inputs/2):init('weight', nninit.constant, 1)(modifier_mask_idx)
 	local head_mask = nn.LookupTable(self.vocab_size,self.inputs/2):init('weight', nninit.constant, 1)(head_mask_idx)
 
-	local reshape_mm = nn.Reshape(self.inputs/2, 1, true)({modifier_mask})
-	local reshape_hm = nn.Reshape(self.inputs/2, 1, true)({head_mask})
+	local reshape_mm = nn.Reshape(self.inputs/2, 1, true)({nn.Dropout(config.dropout)(modifier_mask)})
+	local reshape_hm = nn.Reshape(self.inputs/2, 1, true)({nn.Dropout(config.dropout)(head_mask)})
 
 	local mul_1 = nn.CMulTable()({reshape_mm, sel_u})
 	local mul_2 = nn.CMulTable()({reshape_hm, sel_v})

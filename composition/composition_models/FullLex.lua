@@ -44,7 +44,7 @@ function FullLex:architecture(config)
 
 	local Av_Au = nn.LookupTable(self.vocab_size,self.inputs/2*self.inputs/2):init('weight', nninit.copy, ltInit)({join})
 
-	local splits = nn.SplitTable(2)({Av_Au})
+	local splits = nn.SplitTable(2)({nn.Dropout(config.dropout)(Av_Au)})
 
 	local reshape_Av = nn.Reshape(self.inputs/2,self.inputs/2,true)({nn.SelectTable(1){splits}})
 	local reshape_Au = nn.Reshape(self.inputs/2,self.inputs/2,true)({nn.SelectTable(2){splits}})

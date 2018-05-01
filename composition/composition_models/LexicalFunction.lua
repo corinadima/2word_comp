@@ -39,9 +39,9 @@ function LexicalFunction:architecture(config)
 
 	local U = nn.LookupTable(self.vocab_size,self.inputs/2*self.inputs/2):init('weight', 
 					nninit.copy, ltInit)(u):annotate{name='U'}
-	self.U = U;
+	self.U = nn.Dropout(config.dropout)(U);
 
-	local reshape = nn.Reshape(self.inputs/2,self.inputs/2,true)({U})
+	local reshape = nn.Reshape(self.inputs/2,self.inputs/2,true)({self.U})
 
 	local mul = nn.MM()({reshape, sel})
 	local reshape_mul = nn.Reshape(self.outputs,true)({mul})

@@ -30,7 +30,7 @@ function Matrix:architecture(config)
 	local join = nn.JoinTable(2)({u, v})
 
 	local W = nn.Linear(self.inputs, self.outputs):init('weight', nninit.normal, 0, 1e-4)({join}):annotate{name="W"}
-	local nonlinearity = self.config.nonlinearity({W})
+	local nonlinearity = self.config.nonlinearity({nn.Dropout(config.dropout)(W)})
 	
 	self.mlp = nn.gModule({u, v}, {nonlinearity})
 

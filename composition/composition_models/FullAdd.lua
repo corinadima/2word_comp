@@ -29,10 +29,10 @@ function FullAdd:architecture(config)
 	local W1 = nn.Linear(self.inputs/2, self.outputs):init('weight', nninit.normal, 0, 1e-4):noBias()({u}):annotate{name="W1"}
 	local W2 = nn.Linear(self.inputs/2, self.outputs):init('weight', nninit.normal, 0, 1e-4):noBias()({v}):annotate{name="W2"}
 
-	self.W1 = W1
-	self.W2 = W2
+	self.W1 = nn.Dropout(config.dropout)(W1)
+	self.W2 = nn.Dropout(config.dropout)(W2)
 	
-	local added = nn.CAddTable(2)({W1, W2})
+	local added = nn.CAddTable(2)({self.W1, self.W2})
 	
 	self.mlp = nn.gModule({u, v}, {added})
 
