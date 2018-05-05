@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def plot_learning_curves(output_file):
-    lexfunc_dr0 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-21_18-38', delimiter=' ', names=["dev error", "training error"], header=0)
-    lexfunc_dr05 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-01_11-18', delimiter=' ', names=["dev error", "training error"], header=0)
+    lexfunc_dr0 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44', delimiter=' ', names=["dev error", "training error"], header=0)
+    lexfunc_dr05 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-01_16-41', delimiter=' ', names=["dev error", "training error"], header=0)
 
     fig = plt.figure()
     ax = fig.add_axes([0.1, 0.1, 0.6, 0.75])
@@ -30,8 +30,8 @@ def plot_learning_curves(output_file):
     linewidth = 0.5
 
     ax.plot(dr0_index, lexfunc_dr0['dev error'].astype(float), label='dr. 0: dev error', linewidth=linewidth)
-    ax.plot(dr05_index, lexfunc_dr05['dev error'].astype(float), label='dr. 0.5: dev error', linewidth=linewidth)
     ax.plot(dr0_index, lexfunc_dr0['training error'].astype(float), label='dr. 0: train error', linewidth=linewidth)    
+    ax.plot(dr05_index, lexfunc_dr05['dev error'].astype(float), label='dr. 0.5: dev error', linewidth=linewidth)
     ax.plot(dr05_index, lexfunc_dr05['training error'].astype(float), label='dr. 0.5: train error', linewidth=linewidth)
 
     legend = ax.legend(bbox_to_anchor=(0.95, 0.5), loc='center right', borderaxespad=0., prop={'size':8}, numpoints=5)

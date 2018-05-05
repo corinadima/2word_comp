@@ -174,8 +174,8 @@ if __name__=="__main__":
     w_addition_ranks_file = str(Path('data/results/German/model_WeightedAddition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-43_test_rankedCompounds.txt'))
     w_addition_predictions_file = str(Path('data/results/German/model_WeightedAddition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-43_test.pred'))
 
-    lexfunc_ranks_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44_test_rankedCompounds.txt'))
-    lexfunc_predictions_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44_test.pred'))
+    lexfunc_ranks_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-01_16-41_test_rankedCompounds.txt'))
+    lexfunc_predictions_file = str(Path('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-01_16-41_test.pred'))
 
     fulladd_ranks_file = str(Path('data/results/German/model_FullAdd_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-16_test_rankedCompounds.txt'))
     fulladd_predictions_file = str(Path('data/results/German/model_FullAdd_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-16_test.pred'))
@@ -186,8 +186,8 @@ if __name__=="__main__":
     matrix_ranks_file = str(Path('data/results/German/model_Matrix_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-50_test_rankedCompounds.txt'))
     matrix_predictions_file = str(Path('data/results/German/model_Matrix_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-50_test.pred'))
 
-    fulllex_ranks_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test_rankedCompounds.txt'))
-    fulllex_predictions_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test.pred'))
+    fulllex_ranks_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-04_18-17_test_rankedCompounds.txt'))
+    fulllex_predictions_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-04_18-17_test.pred'))
 
     addmask_ranks_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test_rankedCompounds.txt'))
     addmask_predictions_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test.pred'))
@@ -206,8 +206,8 @@ if __name__=="__main__":
     # asses_composition(path_observed_embeddings, fulladd_predictions_file, fulladd_ranks_file, 'fulladd')
     # asses_composition(path_observed_embeddings, dil_predictions_file, dil_ranks_file, 'dil')
     # asses_composition(path_observed_embeddings, matrix_predictions_file, matrix_ranks_file, 'matrix')
-    # asses_composition(path_observed_embeddings, fulllex_predictions_file, fulllex_ranks_file, 'fulllex')
+    asses_composition(path_observed_embeddings, fulllex_predictions_file, fulllex_ranks_file, 'fulllex')
 
     # asses_composition(path_observed_embeddings, addmask_predictions_file, addmask_ranks_file, 'addmask')
-    asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
+    # asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
 

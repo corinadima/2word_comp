@@ -10,11 +10,11 @@ import pandas as pd
 import argparse
 
 def plot_ranks(output_file):
-    fulllex_10 = pd.read_csv('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-22_08-46_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
+    fulllex_10 = pd.read_csv('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-04_18-17_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     matrix_9 = pd.read_csv('data/results/German/model_Matrix_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-50_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     dilation_8 = pd.read_csv('data/results/German/model_Dilation_tanh_adagrad_batch100_cosine_l2_col_lr_0-1_2018-04-22_08-43_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     fulladd_7 = pd.read_csv('data/results/German/model_FullAdd_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_10-16_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
-    lexfunc_6 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-23_15-44_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
+    lexfunc_6 = pd.read_csv('data/results/German/model_LexicalFunction_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-01_16-41_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     w_addition_5 = pd.read_csv('data/results/German/model_WeightedAddition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-43_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     mul_4 = pd.read_csv('data/results/German/model_Multiplication_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
     addition_3 = pd.read_csv('data/results/German/model_Addition_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-42_test_rankedCompounds.txt', delimiter=' ', names=["compound", "rank"])
@@ -99,19 +99,19 @@ def plot_ranks(output_file):
             xytext=(0, -20), textcoords='offset points', fontsize=8,
             arrowprops=dict(arrowstyle="->", linewidth=arrow_width))
     ax.annotate('lexfunc',
-            xy=(4370, 150), xycoords='data',
+            xy=(4380, 135), xycoords='data',
             xytext=(0, -20), textcoords='offset points', fontsize=8,
             arrowprops=dict(arrowstyle="->", linewidth=arrow_width))
-    ax.annotate('fulladd',
+    ax.annotate('fulllex',
             xy=(5100, 50), xycoords='data',
             xytext=(-30, 15), textcoords='offset points', fontsize=8,
             arrowprops=dict(arrowstyle="->", linewidth=arrow_width))
-    ax.annotate('matrix',
-            xy=(5200, 70), xycoords='data',
+    ax.annotate('fulladd',
+            xy=(5200, 80), xycoords='data',
             xytext=(-20, 35), textcoords='offset points', fontsize=8,
             arrowprops=dict(arrowstyle="->", linewidth=arrow_width))
-    ax.annotate('fulllex',
-            xy=(5220, 70), xycoords='data',
+    ax.annotate('matrix',
+            xy=(5170, 70), xycoords='data',
             xytext=(10, 20), textcoords='offset points', fontsize=8,
             arrowprops=dict(arrowstyle="->", linewidth=arrow_width))
 
