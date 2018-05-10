@@ -15,6 +15,7 @@ local nonliniarities = require 'utils.nonliniarities'
 
 require 'composition/composition_models.CompositionModel'
 require 'composition/composition_models.Matrix'
+require 'composition/composition_models.MultiMatrix'
 require 'composition/composition_models.FullAdd'
 require 'composition/composition_models.HeadOnly'
 require 'composition/composition_models.ModifierOnly'
@@ -40,8 +41,8 @@ cmd:text()
 cmd:text('gsWordcomp: compositionality modelling')
 cmd:text()
 cmd:text('Options:')
-cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|UncrossedFullLex|AddMask|WMask')
-cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the architecture: identity|tanh|sigmoid|reLU')
+cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|UncrossedFullLex|AddMask|WMask|MultiMatrix')
+cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the architecture: identity|tanh|sigmoid|ReLU|ReLU6|PReLU|ELU')
 
 cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|300')
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
@@ -68,9 +69,10 @@ cmd:option('-batchSize', 100, 'mini-batch size (number between 1 and the size of
 cmd:option('-outputDir', 'models', 'output directory to store the trained models')
 cmd:option('-manual_seed', 1, 'manual seed for repeatable experiments')
 cmd:option('-testDev', true, 'test model on dev dataset')
-cmd:option('-testTest', true, 'test model on test dataset')
+cmd:option('-testTest', false, 'test model on test dataset')
 cmd:option('-testFull', false, 'test model on full dataset')
 cmd:option('-lr', 0.01, 'learning rate')
+cmd:option('-no_matrices', 10, 'number of distinct matrices to train in the MultiMatrix model')
 
 cmd:text()
 
@@ -160,14 +162,18 @@ composition_models['UncrossedFullLex'] = torch.UncrossedFullLex(sz * 2, sz, voca
 composition_models['Dilation'] = torch.Dilation(sz * 2, sz)
 composition_models['AddMask'] = torch.AddMask(sz * 2, sz, vocab_size)
 composition_models['WMask'] = torch.WMask(sz * 2, sz, vocab_size)
+composition_models['MultiMatrix'] = torch.MultiMatrix(sz * 2, sz, opt.no_matrices)
 
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 -- nonlinearities
 nl['tanh'] = nonliniarities:tanhNonlinearity()
 nl['sigmoid'] = nonliniarities:sigmoidNonlinearity()
-nl['reLU'] = nonliniarities:reLUNonlinearity()
+nl['ReLU'] = nonliniarities:ReLUNonlinearity()
+nl['ReLU6'] = nonliniarities:ReLU6Nonlinearity()
 nl['identity'] = nonliniarities:identityNonlinearity()
+nl['PReLU'] = nonliniarities:PReLUNonlinearity()
+nl['ELU'] = nonliniarities:ELUNonlinearity()
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 

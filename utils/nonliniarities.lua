@@ -12,12 +12,24 @@ function nonliniarities:sigmoidNonlinearity()
 	return nn.Sigmoid()
 end
 
-function nonliniarities:reLUNonlinearity()
+function nonliniarities:ReLUNonlinearity()
 	return nn.ReLU()
+end
+
+function nonliniarities:ReLU6Nonlinearity()
+	return nn.ReLU6()
 end
 
 function nonliniarities:identityNonlinearity()
 	return nn.Identity()
+end
+
+function nonliniarities:PReLUNonlinearity()
+	return nn.PReLU()
+end
+
+function nonliniarities:ELUNonlinearity()
+	return nn.ELU()
 end
 
 return nonliniarities
