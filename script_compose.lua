@@ -38,7 +38,7 @@ print(_VERSION)
 -- command-line options
 cmd = torch.CmdLine()
 cmd:text()
-cmd:text('gsWordcomp: compositionality modelling')
+cmd:text('2word_comp: compositionality modelling')
 cmd:text()
 cmd:text('Options:')
 cmd:argument('-model', 'compositionality model to train: HeadOnly|ModifierOnly|Addition|WeightedAddition|Multiplication|Matrix|FullAdd|FullLex|UncrossedFullLex|AddMask|WMask|MultiMatrix')
@@ -46,38 +46,28 @@ cmd:option('-nonlinearity', 'tanh', 'nonlinearity to use, if needed by the archi
 
 cmd:option('-dim', 50, 'embeddings set, chosen via dimensionality: 50|100|200|300')
 cmd:option('-dataset', 'german_compounds_nn_only_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
-cmd:option('-mhSize', 7131, 'number of modifiers and heads in the dataset')
+cmd:option('-mhSize', 8580, 'number of modifiers and heads in the dataset 8580|7131')
 cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_raw', 'embeddings to use: glove_decow14ax_all_min_100_vectors_raw')
 cmd:option('-normalization', 'none', 'normalization procedure to apply on the input embeddings: none|l2_row|l2_col|l1_row|l1_col')
-
--- cmd:option('-dim', 200, 'embeddings set, chosen via dimensionality: 300')
--- cmd:option('-dataset', 'german_compounds_mixed_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
--- cmd:option('-mhSize', 8580, 'number of modifiers and heads in the dataset: 8580|7131')
--- cmd:option('-embeddings', 'glove_decow14ax_all_min_100_vectors_l2_rows_cols', 'embeddings to use: glove_encow14ax_enwiki_8B.400k_l2norm_axis01|glove_decow14ax_all_min_100_vectors_l2norm_axis01|glove_decow14ax_all_min_100_vectors_raw')
-
--- cmd:option('-dim', 300, 'embeddings set, chosen via dimensionality: 50|100|200|300')
--- cmd:option('-dataset', 'english_compounds_composition_dataset', 'dataset to use: english_compounds_composition_dataset|german_compounds_mixed_composition_dataset')
--- cmd:option('-mhSize', 7646, 'number of modifiers and heads in the dataset: 7646|8580|7131')
--- cmd:option('-embeddings', 'glove_encow14ax_enwiki_9B.400k_l2_cols_rows', 'embeddings to use: ')
 	
 cmd:option('-gpuid', 1, 'GPU id or -1=use CPU')
 cmd:option('-threads', 16, 'threads to use')
-cmd:option('-criterion', 'mse', 'criterion to use: mse|cosine|abs')
+cmd:option('-criterion', 'cosine', 'criterion to use: mse|cosine|abs')
 cmd:option('-dropout', 0, 'dropout')
 cmd:option('-extraEpochs', 5, 'extraEpochs for early stopping')
 cmd:option('-batchSize', 100, 'mini-batch size (number between 1 and the size of the training data')
 cmd:option('-outputDir', 'models', 'output directory to store the trained models')
 cmd:option('-manual_seed', 1, 'manual seed for repeatable experiments')
 cmd:option('-testDev', true, 'test model on dev dataset')
-cmd:option('-testTest', false, 'test model on test dataset')
+cmd:option('-testTest', true, 'test model on test dataset')
 cmd:option('-testFull', false, 'test model on full dataset')
 cmd:option('-lr', 0.01, 'learning rate')
-cmd:option('-no_matrices', 10, 'number of distinct matrices to train in the MultiMatrix model')
+cmd:option('-no_matrices', 120, 'number of distinct matrices to train in the MultiMatrix model')
+cmd:option('-train_file', "train.txt", 'name of the train file to use')
 
 cmd:text()
 
 opt = cmd:parse(arg)
-print(opt)
 
 -- the lua devices are numbered starting from 1; however, when using CUDA_VISIBLE_DEVICES torch reports a single device with id 1
 if (tonumber(opt.gpuid) >= 0) then
@@ -100,6 +90,8 @@ local config = {
 	optimizer = 'adagrad',
 	criterion = opt.criterion,
 	normalization = opt.normalization,
+	no_matrices = opt.no_matrices,
+	lr = opt.lr,
 	adagrad_config = {
 		learningRate = opt.lr,
 		learningRateDecay = 0,
@@ -117,28 +109,30 @@ local config = {
 	manualSeed = opt.manual_seed,
 	gpuid = tonumber(opt.gpuid) >= 0 and 1 or -1,
 	dropout = opt.dropout,
-	cosineNeighbours = 0
+	cosineNeighbours = 0,
+	transformations = opt.no_matrices
 }
 
-local tf=os.date('%Y-%m-%d_%H-%M',os.time())
+local tf=os.date('%Y-%m-%d_%H-%M-%S',os.time())
 
 -- fix seed, for repeatable experiments
 torch.manualSeed(config.manualSeed)
 
-local configname = opt.model .. '_' .. opt.nonlinearity .. '_' .. config.optimizer ..
+local configname = opt.model .. '_' .. opt.nonlinearity .. '_' .. config.optimizer .. "_" .. opt.train_file ..
 		 "_batch" .. config.batchSize .. "_" .. config.criterion .. "_" .. opt.normalization ..
-		 "_lr_" .. tostring(opt.lr):gsub('%.', '-')
+		 "_lr_" .. tostring(opt.lr):gsub('%.', '-') .. "_dr_" .. tostring(opt.dropout):gsub('%.', '-') .. "_tr_" .. tostring(opt.no_matrices)
 
 config.saveName = paths.concat(config.rundir, "model_" .. configname .. "_" .. tf)
 xlua.log(config.saveName .. ".log")
 
+print("==> opt", opt)
 print("==> config", config)
 print("==> adagrad_config: ", config.adagrad_config)
 
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 -- load data
-local trainSet, devSet, testSet, fullSet = compose_utils:loadDatasets(opt.dataset, opt.minNum)
+local trainSet, devSet, testSet, fullSet = compose_utils:loadDatasets(opt.dataset, opt.minNum, opt.train_file)
 local cmhDictionary, cmhEmbeddings = compose_utils:loadCMHDense(opt.dataset, opt.embeddings, opt.dim, opt.normalization)
 
 local sz = cmhEmbeddings:size()[2]

@@ -27,12 +27,12 @@ def plot_learning_curves(output_file):
     dr0_index = range(len(lexfunc_dr0))
     dr05_index = range(len(lexfunc_dr05))
 
-    linewidth = 0.5
+    linewidth = 1
 
     ax.plot(dr0_index, lexfunc_dr0['dev error'].astype(float), label='dr. 0: dev error', linewidth=linewidth)
-    ax.plot(dr0_index, lexfunc_dr0['training error'].astype(float), label='dr. 0: train error', linewidth=linewidth)    
-    ax.plot(dr05_index, lexfunc_dr05['dev error'].astype(float), label='dr. 0.5: dev error', linewidth=linewidth)
-    ax.plot(dr05_index, lexfunc_dr05['training error'].astype(float), label='dr. 0.5: train error', linewidth=linewidth)
+    ax.plot(dr0_index, lexfunc_dr0['training error'].astype(float), label='dr. 0: train error', linewidth=linewidth, dashes=[6, 2])    
+    # ax.plot(dr05_index, lexfunc_dr05['dev error'].astype(float), label='dr. 0.5: dev error', linewidth=linewidth, dashes=[2, 2, 10, 2])
+    # ax.plot(dr05_index, lexfunc_dr05['training error'].astype(float), label='dr. 0.5: train error', linewidth=linewidth, dashes=[2, 2, 2, 2])
 
     legend = ax.legend(bbox_to_anchor=(0.95, 0.5), loc='center right', borderaxespad=0., prop={'size':8}, numpoints=5)
     rect = legend.get_frame()

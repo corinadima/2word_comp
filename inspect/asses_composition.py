@@ -55,6 +55,51 @@ def compute_neighbours(chosen, path_composed_emb, path_observed_emb, no_neighbou
 
     return nearest_neighbours
 
+def compute_both_neighbours(chosen, path_composed_emb, path_observed_emb):
+    """
+        Returns the neighbours of the composed/observed representations of the chosen words 
+        in an observed space.
+    """
+    original_nearest_neighbours = {}
+    composed_nearest_neighbours = {}
+
+    observed_space = Word2VecKeyedVectors.load_word2vec_format(path_observed_emb, binary=False)
+    observed_space.vectors = normalize(observed_space.vectors, norm="l2", axis=1)
+
+    composed_space = Word2VecKeyedVectors.load_word2vec_format(path_composed_emb, binary=False)
+    composed_space.vectors = normalize(composed_space.vectors, norm="l2", axis=1)
+
+    chosen_words = set([tup[0] for tup in chosen])
+
+    composed_words = composed_space.wv.vocab
+    observed_words = observed_space.wv.vocab
+
+    for word, rank in chosen:
+        original_vec = observed_space.get_vector(word)
+        composed_vec = composed_space.get_vector(word)
+
+        original_composed_cosine = np.dot(original_vec, composed_vec)
+        sims = observed_space.similar_by_vector(vector=original_vec, topn=False)
+        neighbours = [(observed_space.index2word[widx], sims[widx]) for widx in range(len(sims))]
+        neighbours.append(("%s\_c" % word, original_composed_cosine))
+        sorted_neighbours = sorted(neighbours, key=lambda tup: tup[1], reverse=True)
+        print("neighbours of the original representation of %s" % (word))
+        c_idx = [idx for idx, tup in enumerate(sorted_neighbours) if tup[0]=="%s\_c" % word]
+        print(word, original_composed_cosine, c_idx)
+
+        original_nearest_neighbours[word] = sorted_neighbours[:11]
+        print(original_nearest_neighbours[word])
+        comp_index = c_idx[0]
+        if comp_index >= 5:
+            composed_nearest_neighbours["%s\_c" % word] = sorted_neighbours[comp_index-5:comp_index+6]
+        else:
+            composed_nearest_neighbours["%s\_c" % word] = sorted_neighbours[:11-comp_index]
+        print("neighbours of the composed representation of %s" % (word))
+        print(composed_nearest_neighbours["%s\_c" % word])
+
+    return original_nearest_neighbours, composed_nearest_neighbours
+
+
 def compute_best_rank_average(best_rank, test_ranks, path_composed_emb, path_observed_emb):
     chosen_words = set([tup for tup in test_ranks if tup[1] == best_rank])
     print("chosen words", len(chosen_words))
@@ -112,6 +157,56 @@ def latex_print_info(output_file, sample_size, chosen_examples, nearest_neighbou
         out.write("\end{table}\n")
         out.write("\end{document}\n")
 
+
+def latex_print_info_both(output_file, chosen_examples, original_neighbours, composed_neighbours):
+    sample_size = 4
+    with open(output_file, mode='w', encoding='utf8') as out:
+        out.write("\n")
+
+        # out.write("\\documentclass{article}\n") 
+        # out.write("\\usepackage[utf8]{inputenc}\n") 
+        # out.write("\\usepackage{booktabs}\n")   
+        # out.write("\\begin{document}\n")
+        out.write("\\begin{table}[!tbh]\n")
+        out.write("\\begin{center}\n")
+        out.write("\\scriptsize\n")
+        out.write("\\begin{tabular}{rrrr}\n")
+
+        for i in range(math.floor(len(chosen_examples)/sample_size)):
+            format_string = "\\textbf{%s:%d} & " * (sample_size - 1) + "\\textbf{%s:%d} \\\\\n "
+            tp = chosen_examples[i*sample_size:(i+1)*sample_size]
+            ctp = list(itertools.chain(*tp))
+            out.write(format_string % tuple(ctp[:]))
+            out.write("\n\midrule\n")
+
+            current_words = [tup[0] for tup in tp]
+            format_string = "%s %.5f & " * (len(tp)-1) + "%s %.5f \\\\\n "
+            format_dots = "%s & " * (len(tp)-1) + "%s \\\\\n"
+            dots = ["..." for _ in tp]
+
+            for j in range(len(original_neighbours[current_words[i]])):     
+                nw = [original_neighbours[word][j][0] for word in current_words]
+                nc = [original_neighbours[word][j][1] for word in current_words]
+                ncw = zip(nw, nc)
+                out.write(format_string % tuple(list(itertools.chain(*ncw))))
+
+            out.write(format_dots % tuple(dots))
+
+            for j in range(len(composed_neighbours["%s\_c" %current_words[i]])):     
+                nw = [composed_neighbours["%s\_c" % word][j][0] for word in current_words]
+                nc = [composed_neighbours["%s\_c" % word][j][1] for word in current_words]
+                ncw = zip(nw, nc)
+                out.write(format_string % tuple(list(itertools.chain(*ncw))))
+
+            out.write("\n\midrule")
+
+        out.write("\end{tabular}\n")
+        out.write("\caption{\label{ch7:table:de_lex_examples}}\n")
+        out.write("\end{center}\n")
+        out.write("\end{table}\n")
+        # out.write("\end{document}\n")
+
+
 def select_sample(sample_size, start_rank, ranks_dict):
     samples = []
     sorted_keys = sorted(ranks_dict)
@@ -157,8 +252,10 @@ def asses_composition(path_observed_emb, path_composed_emb, path_ranks, model_na
 
 if __name__=="__main__":
 
-    path_observed_embeddings = str(Path('data/german_compounds_nn_only_composition_dataset/embeddings/glove_decow14ax_all_min_100_vectors_raw/glove_decow14ax_all_min_100_vectors_raw.300d_cmh.dm'))
+    # path of the full embeddings (original)
+    path_observed_embeddings = str(Path('data/embeddings/German/decow14ax/raw/decow14ax_all_min_100_vectors_300dim.txt'))
 
+    # loading ranks and prediction files (containing composed embeddings) for trained models
     head_ranks_file = str(Path('data/results/German/model_HeadOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test_rankedCompounds.txt'))
     head_predictions_file = str(Path('data/results/German/model_HeadOnly_tanh_adagrad_batch100_cosine_l2_col_lr_0-01_2018-04-22_08-41_test.pred'))
 
@@ -189,25 +286,32 @@ if __name__=="__main__":
     fulllex_ranks_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-04_18-17_test_rankedCompounds.txt'))
     fulllex_predictions_file = str(Path('data/results/German/model_FullLex_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-05-04_18-17_test.pred'))
 
-    addmask_ranks_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test_rankedCompounds.txt'))
-    addmask_predictions_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test.pred'))
+    addmask_ranks_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-22_16-58-03_test_rankedCompounds.txt'))
+    addmask_predictions_file = str(Path('data/results/German/model_AddMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-22_16-58-03_test.pred'))
 
-    wmask_ranks_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test_rankedCompounds.txt'))
-    wmask_predictions_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-01_2018-04-30_20-40_test.pred'))
+    wmask_ranks_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-22_14-13-21_test_rankedCompounds.txt'))
+    wmask_predictions_file = str(Path('data/results/German/model_WMask_tanh_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-22_14-13-21_test.pred'))
 
+    multimatrix_ranks_file = str(Path('data/results/German/model_MultiMatrix_ReLU_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-23_11-51-21_test_rankedCompounds.txt'))
+    multimatrix_predictions_file = str(Path('data/results/German/model_MultiMatrix_ReLU_adagrad_batch100_cosine_l2_row_lr_0-1_2018-06-23_11-51-21_test.pred'))
 
-    # asses_composition(path_observed_embeddings, head_predictions_file, head_ranks_file, 'head_only')
-    # asses_composition(path_observed_embeddings, modifier_predictions_file, modifier_ranks_file, 'modifier_only')
-    # asses_composition(path_observed_embeddings, addition_predictions_file, addition_ranks_file, 'addition')
-    # asses_composition(path_observed_embeddings, mul_predictions_file, mul_ranks_file, 'mul')
+    asses_composition(path_observed_embeddings, head_predictions_file, head_ranks_file, 'head_only')
+    asses_composition(path_observed_embeddings, modifier_predictions_file, modifier_ranks_file, 'modifier_only')
+    asses_composition(path_observed_embeddings, addition_predictions_file, addition_ranks_file, 'addition')
+    asses_composition(path_observed_embeddings, mul_predictions_file, mul_ranks_file, 'mul')
 
-    # asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
-    # asses_composition(path_observed_embeddings, lexfunc_predictions_file, lexfunc_ranks_file, 'lexfunc')
-    # asses_composition(path_observed_embeddings, fulladd_predictions_file, fulladd_ranks_file, 'fulladd')
-    # asses_composition(path_observed_embeddings, dil_predictions_file, dil_ranks_file, 'dil')
-    # asses_composition(path_observed_embeddings, matrix_predictions_file, matrix_ranks_file, 'matrix')
+    asses_composition(path_observed_embeddings, w_addition_predictions_file, w_addition_ranks_file, 'w_addition')
+    asses_composition(path_observed_embeddings, lexfunc_predictions_file, lexfunc_ranks_file, 'lexfunc')
+    asses_composition(path_observed_embeddings, fulladd_predictions_file, fulladd_ranks_file, 'fulladd')
+    asses_composition(path_observed_embeddings, dil_predictions_file, dil_ranks_file, 'dil')
+    asses_composition(path_observed_embeddings, matrix_predictions_file, matrix_ranks_file, 'matrix')
     asses_composition(path_observed_embeddings, fulllex_predictions_file, fulllex_ranks_file, 'fulllex')
 
-    # asses_composition(path_observed_embeddings, addmask_predictions_file, addmask_ranks_file, 'addmask')
-    # asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
-
+    asses_composition(path_observed_embeddings, addmask_predictions_file, addmask_ranks_file, 'addmask')
+    asses_composition(path_observed_embeddings, wmask_predictions_file, wmask_ranks_file, 'wmask')
+    asses_composition(path_observed_embeddings, multimatrix_predictions_file, multimatrix_ranks_file, 'multimatrix')
+    
+    output_file = str(Path('data/results/German/lex_analysis.tex'))
+    chosen = [('nachtschatten', 1000), ('besenreiser', 1000), ('wertschätzung', 1000), ('tierkreis', 1000)]
+    original_nearest_neighbours, composed_nearest_neighbours = compute_both_neighbours(chosen, multimatrix_predictions_file, path_observed_embeddings)
+    latex_print_info_both(output_file, chosen, original_nearest_neighbours, composed_nearest_neighbours)
